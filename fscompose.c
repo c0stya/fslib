@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "fst.h"
 
 int main(int argc, char * argv[]) {
@@ -19,14 +20,14 @@ int main(int argc, char * argv[]) {
     if (argc > 3)
         ofilename = argv[3];
     
-    if (ifilename_a) {
+    if (ifilename_a && strcmp(ifilename_a, "-") != 0) {
         if (( fin_a = fopen(ifilename_a, "rb")) == NULL ) {
             fprintf(stderr, "Error opening file: %s", ifilename_a);
             exit(EXIT_FAILURE);
         }
     }
 
-    if (ifilename_b) {
+    if (ifilename_b && strcmp(ifilename_b, "-") != 0) {
         if (( fin_b = fopen(ifilename_b, "rb")) == NULL ) {
             fprintf(stderr, "Error opening file: %s", ifilename_b);
             exit(EXIT_FAILURE);
