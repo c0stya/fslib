@@ -37,6 +37,7 @@ state_t fst_add_state(struct _fst * fst) {
     state->n_arcs = 0;
     state->n_max = 0;
     state->final = 0; 
+    state->weight = 0;
 
     state->arcs = NULL;
     
@@ -154,9 +155,9 @@ void fst_read(struct _fst * fst, FILE * fin) {
 }
 
 void fst_fwrite(const struct _fst * fst, const char * filename) {
-    FILE * fout;
+    FILE * fout = NULL;
 
-    if (( fout = fopen(filename, "w")) == NULL ) {
+    if (( fout = fopen(filename, "wb")) == NULL ) {
         fprintf(stderr, "Error opening file: %s", filename);
         exit(EXIT_FAILURE);
     }
@@ -165,7 +166,7 @@ void fst_fwrite(const struct _fst * fst, const char * filename) {
 }
 
 void fst_fread(struct _fst * fst, const char * filename) {
-    FILE * fin;
+    FILE * fin = NULL;
 
     if (( fin = fopen(filename, "rb")) == NULL ) {
         fprintf(stderr, "Error opening file: %s", filename);
@@ -226,6 +227,28 @@ void fst_copy(const struct _fst * orig, struct _fst * copy) {
         so = &orig->states[s];
         sc->arcs = malloc(sizeof(struct _arc) * sc->n_max);
         memcpy(sc->arcs, so->arcs, sizeof(struct _arc) * sc->n_arcs);
+    }
+}
+
+void fst_relabel(struct _fst * fst, label_t old, label_t new, int dir) {
+    // change labels through the whole automaton:
+    // 0 - input 
+    // 1 - output 
+    
+    struct _state * state;
+    struct _arc * arc;
+
+    for (state_t s = 0; s < fst->n_states; ++s) {
+        state = &fst->states[s];
+        for (arc_t a = 0; a < state->n_arcs; ++a) {
+            arc = &state->arcs[a];
+
+            if (dir == 0) {
+                if (arc->ilabel == old) arc->ilabel = new; 
+            } else {
+                if (arc->olabel == old) arc->olabel = new; 
+            }
+        }
     }
 }
 

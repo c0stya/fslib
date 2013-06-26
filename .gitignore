@@ -15,3 +15,6 @@
 *.exe
 *.out
 *.app
+
+# Compiled automata files
+*.t

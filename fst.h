@@ -12,6 +12,7 @@ Yet another version of fst
 #include "sr.h"
 #include "bitset.h"
 #include "queue.h"
+#include "symt.h"
 
 #define _for_each_state(fst, sid, state) \
     for(sid = 0, state = fst->states[0]; \
@@ -31,6 +32,9 @@ static const uint32_t _fst_header = 0x66733031;
 
 #define EPS     0 
 #define EPS_L   -1
+
+#define START_STATE "<start>"
+
 
 struct _fst {
     state_t                 start;
@@ -80,7 +84,6 @@ struct _arc_pair {
 struct _match_item {
     struct _arc a;
     struct _arc b;
-    state_t f;
 };
 
 struct _fst *            fst_create();
@@ -98,17 +101,37 @@ arc_t                    fst_add_arc(
 
 void                    fst_set_final(struct _fst * fst, state_t s, weight_t w);
 void                    fst_print(const struct _fst * fst);
+
+void                    fst_print_sym(const struct _fst * fst,
+                                    struct _symt * ist,
+                                    struct _symt * ost,
+                                    struct _symt * sst);
+
 void                    fst_write(const struct _fst * fst, FILE * fout);
 void                    fst_read(struct _fst * fst, FILE * fin);
 void                    fst_fwrite(const struct _fst * fst, const char * filename);
 void                    fst_fread(struct _fst * fst, const char * filename);
-struct _fst *           fst_compile(struct _fst * fst, FILE * fin);
+
+struct _fst *           fst_compile(
+                                    struct _fst * fst, 
+                                    FILE * fin,
+                                    struct _symt * ist,
+                                    struct _symt * ost,
+                                    struct _symt * sst,
+                                    int is_acc);
+
 struct _fst *           fst_compile_str(struct _fst * fst, const char * str);
 arc_t                   fst_get_n_arcs(const struct _fst * fst);
 void                    fst_arc_sort(struct _fst * fst, int sort_outer);
 void                    fst_stack(struct _fst * a, const struct _fst * b);
 struct _fst *           fst_union(struct _fst * a, const struct _fst * b);
 int                     fst_draw(const struct _fst * fst, FILE * fout);
+                        int fst_draw_sym(   const struct _fst * fst, 
+                                            FILE * fout,
+                                            struct _symt * ist,
+                                            struct _symt * ost,
+                                            struct _symt * sst);
+
 void                    fst_copy(const struct _fst * orig, struct _fst * copy);
 void                    fst_reverse(struct _fst * fst);
 struct _fst *           fst_shortest(const struct _fst * fst, struct _fst * path);
@@ -122,7 +145,6 @@ struct _fst *           fst_compose(    const struct _fst * fst_a,
 void                    match_unsorted( 
                                         struct _arc * a,
                                         struct _arc * b,
-                                        state_t f,
                                         arc_t m,
                                         arc_t n,
                                         struct _queue * q);
@@ -130,7 +152,13 @@ void                    match_unsorted(
 void                    match_half_sorted( 
                                         struct _arc * a,
                                         struct _arc * b,
-                                        state_t f,
+                                        arc_t m,
+                                        arc_t n,
+                                        struct _queue * q);
+
+void                    match_half_sorted_rev( 
+                                        struct _arc * a,
+                                        struct _arc * b,
                                         arc_t m,
                                         arc_t n,
                                         struct _queue * q);
@@ -138,9 +166,10 @@ void                    match_half_sorted(
 void                    match_full_sorted( 
                                         struct _arc * a,
                                         struct _arc * b,
-                                        state_t f,
                                         arc_t m,
                                         arc_t n,
                                         struct _queue * q);
+
+void                    fst_relabel(struct _fst * fst, label_t old, label_t new, int dir);
 
 #endif

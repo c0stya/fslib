@@ -11,7 +11,8 @@ void assert_arc_equal(const struct _arc * arc_a, const struct _arc * arc_b) {
 }
 
 void assert_state_equal(const struct _state * state_a, const struct _state * state_b) {
-    assert ( state_a->weight == state_b->weight );
+    // Disable it cause I still need remove state-weights code
+    // assert ( state_a->weight == state_b->weight );
     assert ( state_a->final == state_b->final );
 }
 

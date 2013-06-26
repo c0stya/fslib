@@ -25,6 +25,7 @@ int main(int argc, char * argv[]) {
     printf("arcs:\t\t%"PRIu32"\n", fst_get_n_arcs(fst));
     printf("sorted input:\t%d\n", fst->flags & ISORT ? 1 : 0);
     printf("sorted output:\t%d\n", fst->flags & OSORT ? 1 : 0);
+    printf("start state:\t%"PRIu32"\n", fst->start);
 
     fst_remove(fst);
     

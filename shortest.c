@@ -26,28 +26,22 @@ static int states_key_eq(const void * a, const void * b) {
 
 static void backtrace(struct _fst * path, state_t f) {
     struct _arc arc;
-    state_t s=f;
+    state_t s;
     state_t n=0; 
 
     fst_add_state(path);
 
-    while( s != 0 ) {
-        arc = B[s];
-        s = arc.state;
+    // Two-scan approach. Could we do better?
+
+    for(s=f; s != 0; s=B[s].state, ++n)
         fst_add_state(path);
-        n++;
-    }
 
     fst_set_final(path, n, sr.one);
-
-    s=f;
-    while( s != 0 ) {
-        arc = B[s];
-        s = arc.state;
+    
+    for(s=f; s != 0; s=B[s].state, --n) {
+        arc=B[s];
         fst_add_arc(path, n-1, n, arc.ilabel, arc.olabel, arc.weight);
-        --n;
     }
-
 }
 
 struct _fst * fst_shortest(const struct _fst * fst, struct _fst * path) {

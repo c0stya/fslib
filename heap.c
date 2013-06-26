@@ -73,14 +73,18 @@ void * heap_pop(struct _heap * heap, void * item) {
     char * items = heap->items;
     size_t s = heap->item_size;
 
-    if (heap->n_items <= 0)
+    if (heap->n_items == 0)
         return NULL; 
 
     // get top node 
     memcpy(item, items, s);
     --heap->n_items;
-    memcpy(items, items + heap->n_items * s, s);
 
+    // if still not empty - move tail to head
+    if (heap->n_items > 0)
+        memcpy(items, items + heap->n_items * s, s);
+
+    // heapify if more than 1
     if (heap->n_items > 1)
         heap_heapify(heap, 0);
 
@@ -117,15 +121,14 @@ void heap_heapify(struct _heap * heap, int i) {
 }
 
 void heap_insert(struct _heap * heap, void * item) {
-    char * items = heap->items;
     size_t s = heap->item_size;
 
     if (heap->n_max == heap->n_items) {
         heap->n_max *= HEAP_RESIZE_FACTOR;
-        items = realloc(items, heap->n_max * s);
+        heap->items = realloc(heap->items, heap->n_max * s);
     }
 
-    memcpy(items + heap->n_items * s, item, s);
+    memcpy(heap->items + heap->n_items * s, item, s);
     ++heap->n_items;
 
     /* 

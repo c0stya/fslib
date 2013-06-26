@@ -5,6 +5,8 @@ void test_create() {
     struct _bitset * bs = bitset_create(8); 
     bitset_set(bs, 0);
     assert ( bitset_get(bs, 0) == 1 );
+
+    bitset_remove(bs);
 }
 
 void test_set_all() {
@@ -14,6 +16,8 @@ void test_set_all() {
     for (int i = 0; i < 1024; ++i) {
         assert ( bitset_get(bs, i) == 1);
     }
+
+    bitset_remove(bs);
 }
 
 void test_clear_all() {
@@ -25,6 +29,8 @@ void test_clear_all() {
     for (int i = 0; i < 1024; ++i) {
         assert ( bitset_get(bs, i) == 0);
     }
+
+    bitset_remove(bs);
 }
 
 void test_clear() {
@@ -33,6 +39,8 @@ void test_clear() {
     assert ( bitset_get(bs, 0) == 1 );
     bitset_clear(bs, 0);
     assert ( bitset_get(bs, 0) == 0 );
+
+    bitset_remove(bs);
 }
 
 int main() {

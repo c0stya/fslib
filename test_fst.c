@@ -96,10 +96,36 @@ void test_fst_copy() {
     fst_remove(fst_b);
 }
 
+void test_fst_relabel() {
+    struct _fst * fst = fst_create();
+    state_t a = fst_add_state(fst);
+    state_t b = fst_add_state(fst);
+
+    fst_add_arc(fst, a, b, 0, 0, 0);
+
+    struct _arc * arc;
+    arc = &fst->states[a].arcs[0];
+
+    fst_relabel(fst, 0, 1, 0);
+
+    assert( arc->ilabel == 1);
+    assert( arc->olabel == 0);
+
+    fst_relabel(fst, 0, 1, 1);
+
+    assert( arc->ilabel == 1);
+    assert( arc->olabel == 1);
+
+    fst_remove(fst);
+}
+
+
+
 int main() {
     test_fst_create();
     test_fst_stress();
     test_fst_copy();
+    test_fst_relabel();
     /*
     test_fst_state_add();
     test_fst_arc_add();

@@ -29,7 +29,6 @@ struct _hash * hash_create( hash_func hash_f,
     return hash;
 }
 
-// TODO: handle possible memory error
 void hash_resize(struct _hash * hash) {
     size_t old_size = hash->size;
     struct _bucket * old_buckets = hash->buckets;
@@ -52,12 +51,13 @@ void hash_resize(struct _hash * hash) {
             hash_add(hash, bi->key, bi->value);
         }
     }
-    
+
+    for (size_t i = 0; i < old_size; ++i)
+        empty_chain(old_buckets[i].head); 
     free(old_buckets);
 }
 
 void hash_remove(struct _hash * hash) {
-    // Done
     for (size_t i = 0; i < hash->size; ++i) {
         empty_chain(hash->buckets[i].head); 
     }
@@ -66,7 +66,6 @@ void hash_remove(struct _hash * hash) {
 }
 
 void empty_chain(struct _bitem * bitem) {
-    // Done
     struct _bitem * t_bitem = NULL;
     while(bitem != NULL) {
         t_bitem = bitem;
@@ -83,7 +82,6 @@ void hash_add(  struct _hash * hash,
                 void * key, 
                 void * value) 
 {
-    // Done
     size_t bnum = hash->hash_f(key) % hash->size;
     struct _bucket * bucket = &hash->buckets[bnum];
 
@@ -102,8 +100,7 @@ void hash_add(  struct _hash * hash,
 
     // otherwise
 
-    struct _bitem * bitem = 
-        (struct _bitem *)malloc(sizeof(struct _bitem));
+    struct _bitem * bitem = malloc(sizeof(struct _bitem));
 
     bitem->key = key;
     bitem->value = value;
@@ -124,8 +121,9 @@ void hash_add(  struct _hash * hash,
 
     // warning: could be a recusion while resizing
     ++hash->n_items;
-    if ( ( ((float)hash->n_items) / hash->size) > HASH_ALPHA)
+    if ( ( ((float)hash->n_items) / hash->size) > HASH_ALPHA) {
         hash_resize(hash);
+    }
 }
 
 void * hash_get(    struct _hash * hash, 

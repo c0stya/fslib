@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "hash.h"
-
-
-static int int_cmp(void * a, void * b) {
-    return (*(int *)a == *(int *)b) ? 1:0;
-}
 
 static size_t int_hash(void * a) {
     return *(int *)a;
+}
+
+static int int_cmp(void * a, void * b) {
+    return (*(int *)a == *(int *)b) ? 1:0;
 }
 
 static void test_hash() {
@@ -86,10 +86,89 @@ static void test_hash_resize() {
     key = 3;
     hash_add(hash, &key, &item);
     assert(hash->size == 8);
+
+    hash_remove(hash);
+}
+
+static void test_load_int() {
+
+    struct _hash * hash = hash_create(
+                        int_hash,
+                        int_cmp,
+                        sizeof(int),
+                        sizeof(int),
+                        10000);
+    int i;
+ 
+    for (i=0; i < 100000; i++) {
+        hash_add(hash, &i, &i);
+    }
+    
+    int obj, j;
+    for (i=0; i < 100000; i++) {
+        j = ~i;
+        assert ( hash_get(hash, &i, &obj) != NULL );
+        assert ( obj == i );
+        assert ( hash_get(hash, &j, &obj) == NULL );
+    }
+
+    hash_remove(hash);
+}
+
+static uint32_t FNV_PRIME_32 = 16777619;
+static uint32_t FNV_OFFSET_32 = 2166136261U;
+
+static size_t fnv32(void * str) {
+
+    const char * s = str;
+    uint32_t hsh = FNV_OFFSET_32, i;
+
+    for(i = 0; i < strlen(s); i++) {
+        // xor next byte into the bottom of the hash
+        hsh = hsh ^ (s[i]); 
+        // Multiply by prime number found to work well
+        hsh = hsh * FNV_PRIME_32; 
+    }
+    return hsh;
+}
+
+static int str_cmp(void * a, void * b) {
+    return strcmp((const char *)a, (const char *)b) == 0 ? 1: 0;
+}
+
+static void test_load_str() {
+    char token[64];
+
+    struct _hash * hash = hash_create(
+                        fnv32,
+                        str_cmp,
+                        sizeof(token),
+                        sizeof(int),
+                        10000);
+    int i, obj;
+ 
+    for (i=0; i < 100000; i++) {
+        sprintf(token, "%d", i);
+        hash_add(hash, token, &i);
+    }
+    
+    for (i=0; i < 100000; i++) {
+        sprintf(token, "%d", i);
+
+        assert ( hash_get(hash, token, &obj) != NULL );
+        assert ( obj == i );
+
+        sprintf(token, "%d", ~i);
+        assert ( hash_get(hash, token, &obj) == NULL );
+    }
+
+    hash_remove(hash);
 }
 
 int main() {
     test_hash();
     test_hash_resize();
+    test_load_int();
+    test_load_str();
     return 0;
 }
