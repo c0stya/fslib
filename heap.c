@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "heap.h"
+#include "hash.h"
 
 /*
 
@@ -15,13 +16,16 @@ Note:
 -indexes start with 0 as usual
 -parent index is -1 when invoked for 0
 
+TODO:
+    refactor the ugly index support with tag // index
+
 */
 
 #define HEAP_PARENT(i)  (((i + 1) >> 1) - 1)
 #define HEAP_LEFT(i)    (((i + 1) << 1) - 1)
 #define HEAP_RIGHT(i)   ((i + 1) << 1)
 
-static void heap_items_swap(struct _heap * heap, int i, int j) {
+static void heap_items_swap(struct _heap * heap, size_t i, size_t j) {
     char * items = heap->items;
     size_t s = heap->item_size;
     char * tmp = malloc(s);
@@ -29,32 +33,71 @@ static void heap_items_swap(struct _heap * heap, int i, int j) {
     memcpy(tmp, items + i*s, s);
     memcpy(items + i*s, items + j*s, s);
     memcpy(items + j*s, tmp, s);
+
+    // index
+    if (heap->ht != NULL) {
+        hash_add(heap->ht, items + i*s, &i);
+        hash_add(heap->ht, items + j*s, &j);
+    }
     
     free(tmp);
 }
 
-struct _heap * heap_create(heap_cmp cmp, size_t item_size, size_t init_size) {
+struct _heap * heap_create(         heap_cmp cmp, 
+                                    size_t item_size, 
+                                    size_t init_size,
+                                    size_t limit) {
     struct _heap * heap;
 
     heap = malloc(sizeof(struct _heap));
     heap->n_items = 0;
     heap->item_size = item_size;
+    heap->limit = limit;
 
     heap->cmp = cmp;
 
-    if (init_size == 0) 
-        heap->n_max = HEAP_INIT_SIZE;
-    else 
-        heap->n_max = init_size;
+    if (limit != 0) {
+        heap->n_max = limit + 1; 
+    } else {
+        if (init_size == 0) 
+            heap->n_max = HEAP_INIT_SIZE;
+        else 
+            heap->n_max = init_size;    
+    }
 
     heap->items = malloc(heap->item_size * heap->n_max); 
+
+    // create lookup hash table to track indexes
+    heap->ht = NULL;
     
     return heap;
 }
 
+struct _hash * heap_index(struct _heap * heap, hash_func hsh, cmp_func hcmp) {
+    if (heap->ht != NULL)
+        hash_remove(heap->ht);
+    
+    heap->ht = hash_create( hsh, 
+                            hcmp, 
+                            heap->item_size,    // key size
+                            sizeof(size_t),     // item size
+                            heap->n_max         // init size
+                        ); 
+    
+    // lets index all the items 
+    for (size_t i = 0;  i < heap->n_items; ++i)
+        hash_add(heap->ht, heap->items + i*heap->item_size, &i);
+    
+    return heap->ht;
+}  
+
 void heap_remove(struct _heap * heap) {
     assert( heap != NULL ); 
     assert( heap->items != NULL );
+
+    if (heap->ht != NULL) {
+        hash_remove(heap->ht);
+    }
 
     free(heap->items);
     free(heap); 
@@ -81,8 +124,13 @@ void * heap_pop(struct _heap * heap, void * item) {
     --heap->n_items;
 
     // if still not empty - move tail to head
-    if (heap->n_items > 0)
+    if (heap->n_items > 0) {
         memcpy(items, items + heap->n_items * s, s);
+        // index
+        size_t i=0;
+        if (heap->ht != NULL)  
+            hash_add(heap->ht, items, &i);
+    }
 
     // heapify if more than 1
     if (heap->n_items > 1)
@@ -93,7 +141,7 @@ void * heap_pop(struct _heap * heap, void * item) {
 
 /* Methods keep the heap property (see Cormen et al) */
 
-void heap_heapify(struct _heap * heap, int i) {
+void heap_heapify(struct _heap * heap, size_t i) {
     char * items = heap->items;
     size_t s = heap->item_size;
 
@@ -120,16 +168,42 @@ void heap_heapify(struct _heap * heap, int i) {
     }
 }
 
+static void heap_delete_max(struct _heap * heap) {
+    // using linear search to find max element
+    char * items = heap->items; 
+    size_t s = heap->item_size;
+
+    size_t m = 0; 
+    for (size_t i = 1; i < heap->n_items + 1; ++i) {
+        if ( heap->cmp(items +m*s, items + i*s))  m = i;
+    }
+
+    // replace with the last element 
+    if (m != heap->n_items) {  // is already the last, do nothing
+        memcpy(items + m*s, items + heap->n_items*s, s); 
+
+        // index 
+        if (heap->ht != NULL) 
+            hash_add(heap->ht, items + m*s, &m);
+
+        heap_update(heap, NULL, m);
+    }
+}
+
 void heap_insert(struct _heap * heap, void * item) {
     size_t s = heap->item_size;
 
-    if (heap->n_max == heap->n_items) {
+    if (heap->limit == 0 && heap->n_max == heap->n_items) {
         heap->n_max *= HEAP_RESIZE_FACTOR;
         heap->items = realloc(heap->items, heap->n_max * s);
     }
 
+    // move to tail
     memcpy(heap->items + heap->n_items * s, item, s);
-    ++heap->n_items;
+
+    // index
+    if (heap->ht != NULL) 
+        hash_add(heap->ht, item, &heap->n_items);
 
     /* 
 
@@ -139,7 +213,11 @@ void heap_insert(struct _heap * heap, void * item) {
 
     */
 
-    heap_update(heap, NULL, heap->n_items-1);
+    if (heap->limit == 0 || heap->n_items < heap->limit) {
+        heap_update(heap, NULL, heap->n_items++);
+    } else {
+        heap_delete_max(heap);
+    }
 }
 
 /* 
@@ -150,31 +228,39 @@ Note: it is possible only to
     -  increase weight for MAX HEAP
 
 */
-void heap_update(struct _heap * heap, void * item, int i) { 
+
+void heap_update(struct _heap * heap, void * item, size_t i) { 
     char * items = heap->items;
     size_t s = heap->item_size;
-    int j;
+    size_t j;
     
+    // remove assertion for equality
     assert ( i < heap->n_items );
 
     if (item != NULL) {  // if invoked directly
-        // this assertion check if we reducing the priority and 
+        // check if we reducing the priority and 
         // not increasing it
-        assert( heap->cmp(item, items + i*s));
+        assert( heap->cmp(item, items + i*s) );
         memcpy(items + i*s, item, s);
+
+        // index
+        if (heap->ht != NULL) 
+            hash_add(heap->ht, item, &i);
     }
 
     while (i > 0 && heap->cmp(items + i*s, items + HEAP_PARENT(i)*s)) {
         j = HEAP_PARENT(i);
         heap_items_swap(heap, i, j);
+
         i = j;
     }
 }
 
-int heap_find(struct _heap * heap, void * item, heap_key_eq key_eq) {
-    for ( size_t i = 0;  i < heap->n_items; ++i )
-        if (key_eq(heap->items + i*heap->item_size, item))
-            return i;
-    return -1; 
+// hash
+void * heap_find(struct _heap * heap, void * item, size_t * pi) {
+    assert( heap->ht != NULL );
+
+    return  hash_get(heap->ht, item, pi);
 }
+
 

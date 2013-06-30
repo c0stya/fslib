@@ -89,7 +89,7 @@ struct _fst * fst_compose(
                     cmp_pair,
                     sizeof(struct _spair),
                     sizeof(state_t), 
-                    fst_a->n_states * fst_b->n_states * 5 ); // try to predict
+                    1000 ); // try to predict
 
     struct _spair      pair;
     struct _match_item   mi;    // composition item

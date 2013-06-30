@@ -40,8 +40,11 @@ test_trim: queue.o bitset.o iter.o sr.o fst.o trim.o test.o symt.o hash.o compil
 test_compose: sr.o fst.o hash.o queue.o compose.o test.o symt.o compile.o print.o match.o sort.o
 	$(CC) sr.o fst.o hash.o queue.o compose.o test.o match.o symt.o compile.o print.o sort.o test_compose.c -o test_compose
 
-test_heap: heap.o 
-	$(CC) heap.o test_heap.c -o test_heap
+test_lcompose: sr.o fst.o hash.o queue.o compose.o lcompose.o test.o symt.o compile.o print.o match.o sort.o lshortest.o heap.o
+	$(CC) sr.o fst.o hash.o queue.o compose.o lcompose.o test.o match.o symt.o compile.o print.o sort.o lshortest.o heap.o test_lcompose.c -o test_lcompose
+
+test_heap: heap.o hash.o
+	$(CC) heap.o hash.o test_heap.c -o test_heap
 
 test_symt: test_symt.txt symt.o hash.o
 	$(CC) symt.o hash.o test_symt.c -o test_symt
@@ -49,7 +52,7 @@ test_symt: test_symt.txt symt.o hash.o
 test_shortest: sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o
 	$(CC)   sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o test_shortest.c -o test_shortest
 
-tests: clean test_fst test_queue test_bitset test_print test_iter test_io test_compile test_sort test_hash test_stack test_trim test_compose test_heap test_shortest test_symt
+tests: clean test_fst test_queue test_bitset test_print test_iter test_io test_compile test_sort test_hash test_stack test_trim test_compose test_heap test_shortest test_symt test_lcompose
 	./test_fst
 	./test_queue
 	./test_bitset
@@ -65,6 +68,7 @@ tests: clean test_fst test_queue test_bitset test_print test_iter test_io test_c
 	./test_shortest
 	./test_compose
 	./test_symt
+	./test_lcompose
 
 fscompile: sr.o fst.o hash.o symt.o compile.o
 	$(CC) sr.o fst.o hash.o symt.o compile.o fscompile.c -o fscompile
@@ -93,8 +97,11 @@ fscompose: sr.o hash.o match.o queue.o fst.o compose.o trim.o bitset.o iter.o
 fsshort: sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o
 	$(CC)  sr.o heap.o symt.o hash.o fst.o shortest.o print.o queue.o fsshort.c -o fsshort
 
-tools: clean fscompile fsprint fsstat fssort fsdraw fscompose fsshort fsextr
-	
+fslshort: sr.o symt.o hash.o heap.o fst.o lshortest.o print.o queue.o compose.o lcompose.o match.o
+	$(CC)  sr.o heap.o symt.o hash.o fst.o lshortest.o print.o queue.o compose.o lcompose.o match.o fslshort.c -o fslshort
+
+tools: clean fscompile fsprint fsstat fssort fsdraw fscompose fsshort fslshort fsextr 	
+
 fst.o:
 	$(CC) -c fst.c
 
@@ -137,6 +144,9 @@ trim.o:
 compose.o:
 	$(CC) -c compose.c
 
+lcompose.o:
+	$(CC) -c lcompose.c
+
 match.o:
 	$(CC) -c match.c	
 
@@ -151,6 +161,9 @@ test_symt.txt:
 
 shortest.o:
 	$(CC) -c shortest.c
+
+lshortest.o:
+	$(CC) -c lshortest.c
 
 clean:
 	rm -f *.o
@@ -176,6 +189,7 @@ install: tools
 	cp ./fssort    ${IPATH}
 	cp ./fsprint   ${IPATH}
 	cp ./fsshort   ${IPATH}
+	cp ./fslshort  ${IPATH}
 	cp ./fsdraw    ${IPATH}
 	cp ./fsstat    ${IPATH}
 	cp ./fsextr    ${IPATH}

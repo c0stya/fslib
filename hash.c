@@ -130,7 +130,6 @@ void * hash_get(    struct _hash * hash,
                     void * key, 
                     void * item) 
 {
-    // Done
     struct _bucket bucket = hash->buckets[hash->hash_f(key) % hash->size];
 
     for (
@@ -144,5 +143,43 @@ void * hash_get(    struct _hash * hash,
         }
     }
     return NULL;
+}
+
+
+// remove an element from a hash table
+void hash_delete(struct _hash * hash, void * key, void * item) {
+    struct _bucket * bucket = &hash->buckets[hash->hash_f(key) % hash->size];
+    struct _bitem * bi = bucket->head; 
+    struct _bitem * bi_prev = NULL; 
+    struct _bitem * bi_next; 
+
+    while(bi != NULL) {
+        bi_next = bi->next;
+        if ( hash->cmp_f(key, bi->key) ) {
+            if (bi_prev == NULL) {
+                // seems we are in the head 
+                bucket->head = bi_next;
+            } else {
+                bi_prev->next = bi_next;
+            }
+            if (bi_next == NULL) {
+                // seems we are in the tail
+                bucket->tail = bi_prev;
+            }
+
+            // free 
+            if (bi->value) 
+                free(bi->value);
+            free(bi->key);
+            free(bi);
+
+            --hash->n_items;
+
+            break;
+        }
+
+        bi_prev = bi;
+        bi = bi_next;
+    }
 }
 

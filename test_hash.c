@@ -165,10 +165,91 @@ static void test_load_str() {
     hash_remove(hash);
 }
 
+static void test_hash_update() {
+    struct _hash * h = hash_create(
+                        int_hash,
+                        int_cmp,
+                        sizeof(int),
+                        sizeof(int),
+                        1);
+    int key=0;
+    int item;
+    int item0=0;
+    int item1=1;
+    
+    hash_add(h, &key, &item0);
+    assert( hash_get(h, &key, &item) != NULL );
+    assert( item == 0 );
+    hash_add(h, &key, &item1);
+    assert( hash_get(h, &key, &item) != NULL );
+    assert( item == 1);
+
+    hash_remove(h);
+}
+
+static void test_hash_delete() {
+    struct _hash * h = hash_create(
+                        int_hash,
+                        int_cmp,
+                        sizeof(int),
+                        sizeof(int),
+                        1);
+    int key=0;
+    int item;
+    int item0=0;
+    
+    hash_add(h, &key, &item0);
+    assert( hash_get(h, &key, &item) != NULL );
+    assert( item == 0 );
+    hash_delete(h, &key, &item0);
+    assert( hash_get(h, &key, &item) == NULL );
+
+    assert ( h->n_items == 0 );
+
+    hash_remove(h);
+}
+
+static void test_hash_delete_1() {
+    char token[64];
+
+    struct _hash * hash = hash_create(
+                        fnv32,
+                        str_cmp,
+                        sizeof(token),
+                        sizeof(int),
+                        100);
+    int i;
+
+    for (i=0; i < 100; i++) {
+        sprintf(token, "%d", i);
+        hash_add(hash, token, &i);
+    }
+
+    assert ( hash->n_items == 100 );
+
+    for (i=0; i < 100; i++) {
+        sprintf(token, "%d", i);
+        hash_delete(hash, token, &i);
+    }
+
+    assert ( hash->n_items == 0 );
+
+    for (i=0; i < 100; i++) {
+        sprintf(token, "%d", i);
+        assert ( hash_get(hash, token, &i) == NULL);
+    }
+   
+    hash_remove(hash);
+}
+
 int main() {
     test_hash();
     test_hash_resize();
     test_load_int();
     test_load_str();
+    test_hash_update();
+    test_hash_delete();
+    test_hash_delete_1();
     return 0;
 }
+

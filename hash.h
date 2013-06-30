@@ -49,6 +49,7 @@ void                hash_add(struct _hash *, void * key, void * item);
 void *              hash_get(struct _hash *, void * key, void * item);
 void                empty_chain(struct _bitem *);
 void                hash_get_list(struct _hash * hash);
+void                hash_delete(struct _hash * hash, void * key, void * item);
 
 size_t              hash_ptr(void * ptr);
 

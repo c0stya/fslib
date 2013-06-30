@@ -172,4 +172,12 @@ void                    match_full_sorted(
 
 void                    fst_relabel(struct _fst * fst, label_t old, label_t new, int dir);
 
+void                    match_arcs(    
+                                        const struct _fst * fst_a,
+                                        const struct _fst * fst_b,
+                                        const struct _spair * pair,
+                                        struct _sr * sr,
+                                        struct _queue * mq);
+
 #endif
+

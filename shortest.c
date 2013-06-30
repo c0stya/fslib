@@ -20,7 +20,8 @@ static int states_cmp(const void * a, const void * b) {
     ) ? 1:0;
 }
 
-static int states_key_eq(const void * a, const void * b) {
+static size_t states_hash(void * a) { return *(int*)a; }
+static int states_key_eq(void * a, void * b) {
     return *(state_t*)a == *(state_t*)b;
 }
 
@@ -49,12 +50,13 @@ struct _fst * fst_shortest(const struct _fst * fst, struct _fst * path) {
     struct _arc   *     arc;
     struct _arc         r_arc;
     state_t             p,q;
-    int                 i;
+    size_t              i;
 
     assert ( fst->sr_type == SR_TROPICAL );
     sr = sr_get(fst->sr_type);
     
-    struct _heap * Q = heap_create(states_cmp, sizeof(state_t), 0);
+    struct _heap * Q = heap_create(states_cmp, sizeof(state_t), 0, 0);
+    heap_index(Q, states_hash, states_key_eq);
 
     W = malloc(sizeof(weight_t) * fst->n_states);
     B = malloc(sizeof(struct _arc) * fst->n_states);
@@ -100,7 +102,7 @@ struct _fst * fst_shortest(const struct _fst * fst, struct _fst * path) {
                 
                 B[q] = r_arc;
 
-                if ((i = heap_find(Q, &q, states_key_eq)) != -1) {
+                if ((heap_find(Q, &q, &i)) != NULL) {
                     heap_update(Q, &q, i);
                 }
             }
