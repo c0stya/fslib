@@ -82,7 +82,7 @@ struct _fst * fst_compose(
 {
     struct _sr sr = sr_get(fst_a->sr_type);
     struct _queue * q = queue_create(sizeof(struct _spair));
-    struct _queue * mq = queue_create(sizeof(struct _match_item)); 
+    struct _queue * mq = queue_create(sizeof(struct _arc_pair)); 
 
     struct _hash * marked = hash_create(
                     hash_pair,
@@ -92,7 +92,7 @@ struct _fst * fst_compose(
                     1000 ); // try to predict
 
     struct _spair      pair;
-    struct _match_item   mi;    // composition item
+    struct _arc_pair   mi;    // composition item
 
     state_t sc, dst_sc;
 
@@ -118,8 +118,7 @@ struct _fst * fst_compose(
             sc = fst_add_state(fst_c);
             
             if (state_a->final && state_b->final)
-                fst_set_final(fst_c, sc,
-                    sr.prod(state_a->weight, state_b->weight));
+                fst_set_final(fst_c, sc);
 
             if (pair.a == fst_a->start && pair.b == fst_b->start)
                 fst_c->start = sc;
@@ -152,8 +151,7 @@ struct _fst * fst_compose(
                 dst_sc = fst_add_state(fst_c);
                 
                 if (dst_state_a->final && dst_state_b->final) {
-                    fst_set_final(fst_c, dst_sc,
-                        sr.prod(dst_state_a->weight, dst_state_b->weight));
+                    fst_set_final(fst_c, dst_sc);
                 }
 
                 queue_enque(q, &pair);

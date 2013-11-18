@@ -49,8 +49,8 @@ test_heap: heap.o hash.o
 test_symt: test_symt.txt symt.o hash.o
 	$(CC) symt.o hash.o test_symt.c -o test_symt
 
-test_shortest: sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o
-	$(CC)   sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o test_shortest.c -o test_shortest
+test_shortest: sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o test.o compile.o
+	$(CC)   sr.o symt.o hash.o heap.o fst.o shortest.o print.o queue.o test.o compile.o test_shortest.c -o test_shortest
 
 tests: clean test_fst test_queue test_bitset test_print test_iter test_io test_compile test_sort test_hash test_stack test_trim test_compose test_heap test_shortest test_symt test_lcompose
 	./test_fst
