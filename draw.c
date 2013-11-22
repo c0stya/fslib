@@ -25,8 +25,8 @@ int fst_draw(const struct _fst * fst, FILE * fout) {
             fprintf(fout, "\t%"PRIu32" [label = \"%"PRIu32"\", shape = circle, style = %s ];\n", 
                 s, s, s == fst->start ? "filled" : "solid");
         } else { 
-            fprintf(fout, "\t%"PRIu32" [label = \"%"PRIu32"/%g\", shape = doublecircle, style = filled ];\n", 
-                s, s, state->weight);
+            fprintf(fout, "\t%"PRIu32" [label = \"%"PRIu32"\", shape = doublecircle, style = filled ];\n", 
+                s, s);
         }
 
         for(arc_t a=0; a < state->n_arcs; ++a) {
@@ -95,8 +95,8 @@ int fst_draw_sym(   const struct _fst * fst,
             fprintf(fout, "\t%s [label = \"%s\", shape = circle, style = %s ];\n", 
                 sa, sa, s == fst->start ? "filled" : "solid");
         } else { 
-            fprintf(fout, "\t%s [label = \"%s/%g\", shape = doublecircle, style = filled ];\n", 
-                sa, sa, state->weight);
+            fprintf(fout, "\t%s [label = \"%s\", shape = doublecircle, style = filled ];\n", 
+                sa, sa);
         }
 
         for(arc_t a=0; a < state->n_arcs; ++a) {
