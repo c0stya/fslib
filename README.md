@@ -3,9 +3,9 @@ fslib
 
 Finite state transducer library. Minimalistic pure C implementation.
 
-![levenstein](https://github.com/lightcaster/fslib/examples/lev.png)
+![levenstein](https://github.com/lightcaster/fslib/blob/master/examples/lev.png)
 
-Usage
+Basic operations
 -----
 
 ### Compilation
@@ -14,8 +14,8 @@ Usage
 
 ### Shortest path
 
-### Drawing
-
 ### Printing
+
+### Drawing
 
 ### Automaton stats
