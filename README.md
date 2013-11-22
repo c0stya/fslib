@@ -12,7 +12,7 @@ Basic operations
 
 ### Compilation
 
-Let's create an automaton that accepts "(01)\*" regular language.
+Let's create an automaton that accepts "(01)\*" regular language. We need a *fscompile* command:
 
 ```bash
 echo  "\
@@ -32,13 +32,39 @@ Transition line format:
 
 Final state line contains only a number of a state.
 
+### Printing
+
+To print it just invoke *fsprint* command:
+```bash
+fsprint automaton.t
+```
+or as usual pipe:
+```bash
+cat automaton.t | fsprint
+```
+
 ### Composition
 
-### Shortest path
+To compose transducers one should use the *fscompose* command:
 
-### Printing
+```bash
+fscompose aut0.t aut1.t > aut3.t
+```
+
+It could be done in the pipe style with more then two automata:
+```bash
+cat aut0.t | fscompose - aut1.t | fscompose - aut2.t > aut3.t
+```
+
+Warning: a proper sorting of intput/output arcs could be significantly increase the performanse.
 
 ### Drawing
 
-### Automaton stats
+We could draw automaton using *fsdraw* command. To actually render it you need *dot* utility from the Graphviz package.  Make sure you have Graphviz (http://www.graphviz.org) package properly installed.
+
+To render a transducer to png file use the following:
+
+```bash
+fsdraw automaton.t | dot -Tpng > automaton.png
+```
 
