@@ -27,7 +27,7 @@ Transition line format:
 * source state
 * destination state
 * input label
-* output labe
+* output label
 * (optional) weight
 
 Final state line contains only a number of a state.
@@ -56,7 +56,15 @@ It could be done in the pipe style with more then two automata:
 cat aut0.t | fscompose - aut1.t | fscompose - aut2.t > aut3.t
 ```
 
-Warning: a proper sorting of intput/output arcs could be significantly increase the performanse.
+Warning: a proper sorting of input/output arcs could be significantly increase the performance.
+
+### Shortest path
+
+Use *fsshort* command to get the the transducer with the shortest path:
+
+```bash
+fsshort automaton.t > shortest_path.t
+```
 
 ### Drawing
 
