@@ -10,12 +10,14 @@ Setup
 
 C99 compiler is required. Just run:
 
-```make
+```bash
+make
 ```
 
 To run compile and run tests:
 
-```make tests
+```bash
+make tests
 ```
 
 Usage
