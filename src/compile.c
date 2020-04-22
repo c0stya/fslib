@@ -53,7 +53,7 @@ static void _add_final(
     while(s + 1 > fst->n_states)
         fst_add_state(fst);
 
-    fst_set_final(fst, s);
+    fst_set_final(fst, s, w);
 }
 
 static int _parse_line(struct _fst * fst, char * buf) {

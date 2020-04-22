@@ -10,14 +10,14 @@ echo  "\
 0 1 a a
 1 2 b b
 2 3 c c
-3" | ../fscompile --isym=sym.st --osym=sym.st > a.t
+3" | bin/fscompile --isym=sym.st --osym=sym.st > a.t
 
 # create the second transducer
 echo  "\
 0 1 c c
 1 2 b b
 2 3 a a
-3" | ../fscompile --isym=sym.st --osym=sym.st > b.t
+3" | bin/fscompile --isym=sym.st --osym=sym.st > b.t
 
 # create the edit transducer 
 echo "\
@@ -36,10 +36,10 @@ echo "\
 0 0 e a 1
 0 0 e b 1
 0 0 e c 1
-0" | ../fscompile --isym=sym.st --osym=sym.st > ed.t
+0" | bin/fscompile --isym=sym.st --osym=sym.st > ed.t
 
-#../fscompose a.t ed.t | ../fscompose - b.t | ../fsdraw | dot -Tpng > edit.png
-../fscompose a.t ed.t | ../fscompose - b.t | ../fsdraw --isym=sym.st --osym=sym.st | dot -Tpng > lev.png
+bin/fscompose a.t ed.t | bin/fscompose - b.t | bin/fsdraw --isym=sym.st --osym=sym.st | dot -Tpng > lev.png
+
 rm a.t
 rm b.t
 rm ed.t

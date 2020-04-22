@@ -4,7 +4,7 @@
 #include "fst.h"
 
 static void test_fst_read_write() {
-    const char filename [] = "test_io.t";
+    const char filename [] = "tests/test_io.t";
 
     struct _fst * fst = fst_create();
     state_t state_a = fst_add_state(fst);

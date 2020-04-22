@@ -4,7 +4,7 @@
 #include "symt.h"
 
 static void test_create() {
-    struct _symt *  st = symt_create();
+    struct _symt*  st = symt_create();
     
     assert( st->sym != NULL );
     for(int i=0; i < st->n_max; ++i) {
@@ -93,7 +93,7 @@ static void test_getr() {
 static void test_read() {
     struct _symt *  st = symt_create();
 
-    symt_fread(st, "test_symt.txt");
+    symt_fread(st, "tests/test_symt.txt");
     assert ( st->n_items == 2);
 
     assert ( strcmp("one", st->sym[1]) == 0 );

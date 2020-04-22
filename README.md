@@ -1,13 +1,24 @@
 fslib
 =====
 
-Finite state transducer library. Minimalistic pure C implementation. This project is mostly inspired by OpenFST library (http://www.openfst.org) by Michael Riley and Mehriar Mohri. The main focus here is a performance and simplicity. 
-
-The package could be used to construct n-gram language models and as a construction block for decoders in speech recognition and spelling correction. It could be used for the tasks of discrete optimization on sequences (e.g. levenstein distance).
+Finite state transducer library. Minimalistic pure C implementation. This project is mostly inspired by OpenFST library (http://www.openfst.org) by Michael Riley and Mehriar Mohri. The main focus here is performance and simplicity. 
 
 ![levenstein](examples/lev.png)
 
-Basic operations
+Setup
+-----
+
+C99 compiler is required. Just run:
+
+```make
+```
+
+To run compile and run tests:
+
+```make tests
+```
+
+Usage
 -----
 
 ### Compilation

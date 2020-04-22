@@ -1,6 +1,7 @@
-
 #ifndef __QUEUE_H__
 #define __QUEUE_H__
+
+#include <stddef.h>
 
 /*
 Simple queue structure with FIFO discipline.
