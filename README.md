@@ -3,7 +3,7 @@ fslib
 
 Finite state transducer library. Minimalistic pure C implementation. This project is mostly inspired by OpenFST library (http://www.openfst.org) by Michael Riley and Mehriar Mohri. The main focus here is performance and simplicity. 
 
-![levenstein](examples/lev.png)
+<img src="examples/lev.png" height="500" width="300">
 
 Setup
 -----
