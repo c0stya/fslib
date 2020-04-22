@@ -11,6 +11,8 @@ Setup
 C99 compiler is required. Just run:
 
 ```bash
+git clone https://github.com/c0stya/fslib.git
+cd fslib
 make
 ```
 

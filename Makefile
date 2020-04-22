@@ -6,6 +6,8 @@ OBJ := obj
 BIN := bin
 TST := tests
 
+dir_guard=@mkdir -p $(@D)
+
 _OBJECTS := compile.o hash.o sr.o fst.o symt.o sort.o queue.o bitset.o print.o draw.o compose.o shortest.o match.o heap.o iter.o test.o trim.o
 OBJECTS := $(patsubst %, $(OBJ)/%, $(_OBJECTS))
 
@@ -16,9 +18,11 @@ BINARIES := fscompile fsprint fsstat fssort fsdraw fscompose fsshort
 all: tests $(BINARIES)
 
 $(OBJ)/%.o: $(SRC)/%.c
+	@mkdir -p $(@D)
 	$(CC) -I$(SRC) -c $< -o $@
 
 $(TESTS): $(OBJECTS) 
+	@mkdir -p $(TST)
 	$(CC) $^ -o $(TST)/$@ $(SRC)/$@.c
 
 tests: $(TESTS)
@@ -26,11 +30,15 @@ tests: $(TESTS)
 	@$(foreach x, $(TESTS), $(TST)/$x;)
 
 $(BINARIES): $(OBJECTS) 
+	@mkdir -p $(BIN)
 	$(CC) $^ -o $(BIN)/$@ $(SRC)/$@.c
 
 .PHONY: clean
 
 clean:
-	rm -f $(OBJ)/*.o
-	rm -f $(TST)/test_*
-	rm -f $(BIN)/fs*
+	@rm -f $(OBJ)/*.o
+	@rm -f $(TST)/test_*
+	@rm -f $(BIN)/fs*
+	@rm -df $(OBJ)
+	@rm -df $(TST)
+	@rm -df $(BIN)
